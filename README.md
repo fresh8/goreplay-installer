@@ -17,9 +17,12 @@ goreplay-installer help
 ```
 
 ### Install
-This command downloads goreplay to `/tmp` then copies this file to `/usr/local/bin`. An upstart script is installed to `/etc/init/goreplay.conf`. It expects the PORT and HOST environment variables have been set for this instance.
+This command downloads goreplay to `/tmp` then copies this file to `/usr/local/bin`. An upstart script is installed to `/etc/init/goreplay.conf`. Where the host is the destination to send the request and the port is the port to listen to.
 ```
-goreplay-installer install
+goreplay-installer install $port $host
+
+e.g.
+goreplay-installer install :80 http://0.0.0.0:80
 ```
 
 Additional options can be viewed via the help command.
