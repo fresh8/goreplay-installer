@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// RootCmd is terraplate's root command.
+// RootCmd is goreplay installer's root command.
 // Every other command attached to RootCmd is a child command to it.
 var RootCmd = &cobra.Command{
 	Use:   "goreplay-install",

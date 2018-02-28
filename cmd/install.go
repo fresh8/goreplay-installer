@@ -15,7 +15,8 @@ import (
 )
 
 type upstartConfig struct {
-	Body string
+	Port string
+	Host string
 }
 
 var (
@@ -25,23 +26,30 @@ var (
 	goReplayVersion = "https://github.com/buger/goreplay/releases/download/v0.16.1/" + goFileName
 	workingDir      = `/tmp`
 	destDir         = `/usr/local/bin`
-	upstartDir      = `/etc/init/`
-	outputUpstart   = ``
+	upstartDir      = `/etc/init`
 )
 
 func init() {
-	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "if terraplate should run in debug mode (default is false)")
+	RootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "if goreplay-installer should run in debug mode (default is false)")
 	RootCmd.AddCommand(installCmd)
 }
 
 var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "TODO",
-	Long:  `TODO`,
+	Use:   "install listening_port destination_url",
+	Short: "Install goreplay and install upstart config",
+	Long:  `Install goreplay and install upstart config and specifiy which port to listen to and the destination address for the incomming requests`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return cobra.MinimumNArgs(0)(cmd, args)
+		return cobra.MinimumNArgs(1)(cmd, args)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		for _, arg := range args {
+			logMessage(arg)
+		}
+
+		config := upstartConfig{
+			Port: args[0],
+			Host: args[1],
+		}
 		logMessage(fmt.Sprintf("Downloading goreplay file to %q", workingDir))
 		err := downloadFile(workingDir+"/"+goFileName, goReplayVersion)
 		if err != nil {
@@ -55,7 +63,7 @@ var installCmd = &cobra.Command{
 		}
 
 		logMessage("Creating Upstart script and deploying")
-		upstartConfBuf, err := createUpstartConf()
+		upstartConfBuf, err := createUpstartConf(config)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -76,19 +84,18 @@ func logMessage(message string) {
 	}
 }
 
-func createUpstartConf() (buf *bytes.Buffer, err error) {
+func createUpstartConf(config upstartConfig) (buf *bytes.Buffer, err error) {
 	template, err := installer.GetTemplate("/etc/init/goreplay-listen.conf")
 	if err != nil {
 		return buf, err
 	}
 
-	return createTemplateOutput(template)
+	return createTemplateOutput(config, template)
 }
 
-func createTemplateOutput(templateContent string) (*bytes.Buffer, error) {
-	var config upstartConfig
+func createTemplateOutput(config upstartConfig, templateContent string) (*bytes.Buffer, error) {
 	buf := bytes.NewBuffer([]byte{})
-	tmpl, err := template.New("thing").Parse(templateContent)
+	tmpl, err := template.New("upstart-config").Parse(templateContent)
 	if err != nil {
 		return buf, err
 	}

@@ -2,21 +2,16 @@ package installer
 
 import (
 	"errors"
-	"fmt"
 )
 
 var (
 	templates = map[string]string{
-		"/etc/init/goreplay-listen.conf": fmt.Sprintf(`
-description "Goreplay"
+		"/etc/init/goreplay-listen.conf": `description "Goreplay"
 author      "Adam Reynolds <adam@connected-ventures.com>"
 
 env START=/usr/local/bin/goreplay
-instance $PORT
-instance $HOST
-
-env PORT=:$PORT
-env HOST=http://$HOST:80
+env PORT={{.Port}}
+env HOST={{.Host}}
 
 chdir /etc/
 
@@ -32,7 +27,7 @@ respawn                # restart when job dies
 respawn limit 5 60     # give up restart after 5 respawns in 60 seconds
 
 exec $START --input-raw $PORT --output-http $HOST   --http-disallow-url /_health --http-disallow-url /_metrics
-`),
+`,
 	}
 )
 
