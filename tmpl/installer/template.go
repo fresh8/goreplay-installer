@@ -12,8 +12,11 @@ description "Goreplay"
 author      "Adam Reynolds <adam@connected-ventures.com>"
 
 env START=/usr/local/bin/goreplay
-env PORT=:3000
-env HOST=http://10.133.0.75:80
+instance $PORT
+instance $HOST
+
+env PORT=:$PORT
+env HOST=http://$HOST:80
 
 chdir /etc/
 
