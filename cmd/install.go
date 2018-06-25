@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"text/template"
 
 	"github.com/fresh8/goreplay-installer/tmpl/installer"
@@ -15,8 +17,9 @@ import (
 )
 
 type upstartConfig struct {
-	Port string
-	Host string
+	Port   string
+	Host   string
+	Filter string
 }
 
 var (
@@ -39,19 +42,20 @@ var installCmd = &cobra.Command{
 	Short: "Install goreplay and install upstart config",
 	Long:  `Install goreplay and install upstart config and specifiy which port to listen to and the destination address for the incomming requests`,
 	Args: func(cmd *cobra.Command, args []string) error {
-		return cobra.MinimumNArgs(1)(cmd, args)
+		return cobra.MinimumNArgs(2)(cmd, args) // port & host
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		for _, arg := range args {
 			logMessage(arg)
 		}
 
-		config := upstartConfig{
-			Port: args[0],
-			Host: args[1],
+		config, err := createConfig(args)
+		if err != nil {
+			log.Fatal(err)
 		}
+
 		logMessage(fmt.Sprintf("Downloading goreplay file to %q", workingDir))
-		err := downloadFile(workingDir+"/"+goFileName, goReplayVersion)
+		err = downloadFile(workingDir+"/"+goFileName, goReplayVersion)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -147,3 +151,27 @@ func writeToFile(filePath string, contents string) error {
 
 	return nil
 }
+
+func createConfig(args []string) (upstartConfig, error) {
+	if len(args) < 2 {
+		return upstartConfig{}, ErrNotEnoughArgs
+	}
+	config := upstartConfig{
+		Port:   args[0],
+		Host:   args[1],
+		Filter: "",
+	}
+	for i := 3; i <= len(args); i++ {
+		config.Filter = strings.Trim(fmt.Sprintf("%s --http-allow-url %s", config.Filter, args[i-1]), " ")
+	}
+	if config.Filter == "" {
+		config.Filter = "--http-disallow-url /_health --http-disallow-url /_metrics"
+	}
+
+	return config, nil
+}
+
+var (
+	// ErrNotEnoughArgs not enough args
+	ErrNotEnoughArgs = errors.New("not enough args")
+)
