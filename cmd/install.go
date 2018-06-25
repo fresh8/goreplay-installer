@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -48,10 +49,13 @@ var installCmd = &cobra.Command{
 			logMessage(arg)
 		}
 
-		config := createConfig(args)
+		config, err := createConfig(args)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		logMessage(fmt.Sprintf("Downloading goreplay file to %q", workingDir))
-		err := downloadFile(workingDir+"/"+goFileName, goReplayVersion)
+		err = downloadFile(workingDir+"/"+goFileName, goReplayVersion)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -148,7 +152,10 @@ func writeToFile(filePath string, contents string) error {
 	return nil
 }
 
-func createConfig(args []string) upstartConfig {
+func createConfig(args []string) (upstartConfig, error) {
+	if len(args) < 2 {
+		return upstartConfig{}, ErrNotEnoughArgs
+	}
 	config := upstartConfig{
 		Port:   args[0],
 		Host:   args[1],
@@ -161,5 +168,10 @@ func createConfig(args []string) upstartConfig {
 		config.Filter = "--http-disallow-url /_health --http-disallow-url /_metrics"
 	}
 
-	return config
+	return config, nil
 }
+
+var (
+	// ErrNotEnoughArgs not enough args
+	ErrNotEnoughArgs = errors.New("not enough args")
+)
