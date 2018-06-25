@@ -26,7 +26,7 @@ stop  on shutdown
 respawn                # restart when job dies
 respawn limit 5 60     # give up restart after 5 respawns in 60 seconds
 
-exec $START --input-raw $PORT --output-http $HOST   --http-disallow-url /_health --http-disallow-url /_metrics
+exec $START --input-raw $PORT --output-http $HOST {{.Filter}}
 `,
 	}
 )
