@@ -16,12 +16,12 @@ func TestConfirmation(t *testing.T) {
 			"--http-disallow-url /_health --http-disallow-url /_metrics",
 		},
 		{
-			"test 1 param",
+			"test 3 arguments (1 filter)",
 			[]string{"port", "host", "/get_this"},
 			"--http-allow-url /get_this",
 		},
 		{
-			"test 2 params",
+			"test 4 arguments (2 filters)",
 			[]string{"port", "host", "/get_this", "/and_this"},
 			"--http-allow-url /get_this --http-allow-url /and_this",
 		},
