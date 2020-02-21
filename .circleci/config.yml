@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12
 
     working_directory: /go/src/github.com/fresh8/goreplay-installer
     steps:
@@ -32,7 +32,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.12
 
     working_directory: /go/src/github.com/fresh8/goreplay-installer
     steps:

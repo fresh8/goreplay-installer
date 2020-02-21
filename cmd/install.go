@@ -25,8 +25,8 @@ type upstartConfig struct {
 var (
 	debug bool
 
-	goFileName      = "gor_0.16.1_x64.tar.gz"
-	goReplayVersion = "https://github.com/buger/goreplay/releases/download/v0.16.1/" + goFileName
+	goFileName      = "gor_1.0.0_x64.tar.gz"
+	goReplayVersion = "https://github.com/buger/goreplay/releases/download/v1.0.0/" + goFileName
 	workingDir      = `/tmp`
 	destDir         = `/usr/local/bin`
 	upstartDir      = `/etc/init`
