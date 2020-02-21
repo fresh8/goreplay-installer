@@ -1,13 +1,15 @@
 version: 2.1
+
+defaults: &defaults
+  docker:
+    - image: circleci/golang:1.12
+
 jobs:
   build:
-    docker:
-      - image: circleci/golang:1.12
-
+    <<: *defaults
     working_directory: /go/src/github.com/fresh8/goreplay-installer
     steps:
       - checkout
-
       - run: go get github.com/Masterminds/glide
       - restore_cache:
           keys:
@@ -27,17 +29,13 @@ jobs:
           key: dep-cache
           paths:
             - vendor
-
       - run: go test $(glide nv)
 
   deploy:
-    docker:
-      - image: circleci/golang:1.12
-
+    <<: *defaults
     working_directory: /go/src/github.com/fresh8/goreplay-installer
     steps:
       - checkout
-
       - run: go get github.com/Masterminds/glide
       - restore_cache:
           keys:
