@@ -4,7 +4,7 @@
 # goreplay-installer
 A tool for deploying goreplay to autoscalled instances http://fresh8gaming.com
 
-Current version: v0.0.4
+Current version: v0.0.5
 
 ## Getting Started
 ### Installing
